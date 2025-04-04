@@ -45,7 +45,9 @@ The program detects **deadlocks automatically** every 5 seconds and alerts the u
 4. Check for deadlock.
 
 ## Screenshots
-*(Add images of your UI and graph visualization here)*
+Here is an example visualization of the Resource Allocation Graph:
+
+![Resource Allocation Graph](graph_visualization.png)
 
 ## License
 This project is open-source under the MIT License.
