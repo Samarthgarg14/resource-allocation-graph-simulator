@@ -51,3 +51,6 @@ Here is an example visualization of the Resource Allocation Graph:
 
 ## License
 This project is open-source under the MIT License.
+
+## Author
+Developed by Samarth Garg
