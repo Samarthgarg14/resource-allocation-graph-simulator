@@ -28,6 +28,7 @@ python app.py
 ### UI Controls
 - **Add Process**: Adds a new process node.
 - **Add Resource**: Adds a new resource node.
+- **Instances**: No. of instances a resource can have.
 - **Request Resource**: Requests a resource for a process.
 - **Allocate Resource**: Allocates a resource to a process.
 - **Release Resource**: Releases a resource from a process.
@@ -38,9 +39,12 @@ python app.py
 ## Deadlock Detection
 The program detects **deadlocks automatically** every 5 seconds and alerts the user if a cycle is found in the allocation graph.
 
+## Resource Instances
+Now, each resource can have **multiple instances**. When adding a resource, you can specify how many instances are available. This feature allows the simulator to model situations where multiple copies of a resource exist, improving the accuracy of the deadlock detection and resource management.
+
 ## Example
 1. Add `P1`, `P2` as processes.
-2. Add `R1`, `R2` as resources.
+2. Add `R1 (2 instances)`, `R2 (3 instances)` as resources.
 3. Request and allocate resources.
 4. Check for deadlock.
 
@@ -53,4 +57,7 @@ Here is an example visualization of the Resource Allocation Graph:
 This project is open-source under the MIT License.
 
 ## Author
-Developed by Samarth Garg
+
+**Samarth Garg**  
+2nd Year B.Tech, LPU  
+GitHub: [Samarthgarg14](https://github.com/Samarthgarg14)
