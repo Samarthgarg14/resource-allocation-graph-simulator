@@ -40,10 +40,27 @@ class ResourceAllocationGraph:
 
     def detect_deadlock(self):
         try:
+            # Step 1: Find any cycle
             cycle = nx.find_cycle(self.graph, orientation='original')
+        
+            # Step 2: Validate if the cycle is a real deadlock
+            for i in range(len(cycle)):
+                u, v, _ = cycle[i]
+
+                # If it's a process requesting a resource
+                if self.graph.nodes[u]['type'] == "process" and self.graph.nodes[v]['type'] == "resource":
+                    resource = v
+                    # Check if all instances of the resource are allocated
+                    if self.graph.nodes[resource]['allocated'] < self.graph.nodes[resource]['instances']:
+                        # Not a deadlock — process can eventually get it
+                        return None
+
+            # All resources in cycle are fully allocated => real deadlock
             return cycle
+
         except nx.NetworkXNoCycle:
             return None
+
 
     def visualize_graph(self):
         plt.figure(figsize=(8, 6))
@@ -69,14 +86,18 @@ class ResourceGraphGUI:
         self.resource_entry = tk.Entry(root)
         self.resource_entry.grid(row=1, column=1)
 
-        tk.Button(root, text="Add Process", command=self.add_process).grid(row=2, column=0)
-        tk.Button(root, text="Add Resource", command=self.add_resource).grid(row=2, column=1)
-        tk.Button(root, text="Request Resource", command=self.request_resource).grid(row=3, column=0)
-        tk.Button(root, text="Allocate Resource", command=self.allocate_resource).grid(row=3, column=1)
-        tk.Button(root, text="Release Resource", command=self.release_resource).grid(row=4, column=0)
-        tk.Button(root, text="Detect Deadlock", command=self.detect_deadlock).grid(row=4, column=1)
-        tk.Button(root, text="Show Graph", command=self.show_graph).grid(row=5, column=0)
-        tk.Button(root, text="Show Summary Table", command=self.show_summary_table).grid(row=5, column=1)
+        tk.Label(root, text="Instance Count:").grid(row=2, column=0)
+        self.instance_entry = tk.Entry(root)
+        self.instance_entry.grid(row=2, column=1)
+
+        tk.Button(root, text="Add Process", command=self.add_process).grid(row=3, column=0)
+        tk.Button(root, text="Add Resource", command=self.add_resource).grid(row=3, column=1)
+        tk.Button(root, text="Request Resource", command=self.request_resource).grid(row=4, column=0)
+        tk.Button(root, text="Allocate Resource", command=self.allocate_resource).grid(row=4, column=1)
+        tk.Button(root, text="Release Resource", command=self.release_resource).grid(row=5, column=0)
+        tk.Button(root, text="Detect Deadlock", command=self.detect_deadlock).grid(row=5, column=1)
+        tk.Button(root, text="Show Graph", command=self.show_graph).grid(row=6, column=0)
+        tk.Button(root, text="Show Summary Table", command=self.show_summary_table).grid(row=6, column=1)
 
         self.check_deadlock_periodically()  # Start automatic deadlock detection
 
@@ -89,10 +110,22 @@ class ResourceGraphGUI:
 
     def add_resource(self):
         resource = self.resource_entry.get().strip()
-        if resource and self.graph.add_resource(resource):
-            messagebox.showinfo("Success", f"Resource {resource} added.")
+        instance_text = self.instance_entry.get().strip()
+
+        # Default to 1 if left blank
+        if instance_text == "":
+            instances = 1
+        elif instance_text.isdigit() and int(instance_text) > 0:
+            instances = int(instance_text)
+        else:
+            messagebox.showerror("Error", "Please enter a valid positive number for instance count.")
+            return
+
+        if resource and self.graph.add_resource(resource, instances):
+            messagebox.showinfo("Success", f"Resource {resource} with {instances} instance(s) added.")
         else:
             messagebox.showwarning("Warning", f"Resource {resource} already exists!")
+
 
     def request_resource(self):
         process = self.process_entry.get().strip()
