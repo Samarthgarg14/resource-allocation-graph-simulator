@@ -150,13 +150,6 @@ class ResourceGraphGUI:
             self.graph.release_resource(process, resource)
             messagebox.showinfo("Success", f"Resource {resource} released from Process {process}.")
 
-    def detect_deadlock(self):
-        deadlock = self.graph.detect_deadlock()
-        if deadlock:
-            messagebox.showerror("Deadlock Detected!", f"Deadlock found: {deadlock}")
-        else:
-            messagebox.showinfo("No Deadlock", "No deadlock detected.")
-
     def show_graph(self):
         if len(self.graph.graph.nodes) == 0:
             messagebox.showinfo("Info", "Graph is empty! Add processes and resources first.")
@@ -170,10 +163,18 @@ class ResourceGraphGUI:
             if not hasattr(self, 'deadlock_reported') or not self.deadlock_reported:
                 messagebox.showerror("Deadlock Detected!", f"Deadlock found: {deadlock}")
                 self.deadlock_reported = True
+                self.explain_deadlock_reason(deadlock)
         else:
             self.deadlock_reported = False  # Reset flag when no deadlock is found
         self.root.after(5000, self.check_deadlock_periodically)
 
+    def detect_deadlock(self):
+        deadlock = self.graph.detect_deadlock()
+        if deadlock:
+            messagebox.showerror("Deadlock Detected!", f"Deadlock found: {deadlock}")
+            self.explain_deadlock_reason(deadlock)  # Call the new feature here
+        else:
+            messagebox.showinfo("No Deadlock", "No deadlock detected.")
 
     def show_summary_table(self):
         """Opens a new window to display the resource allocation summary table."""
@@ -221,6 +222,30 @@ class ResourceGraphGUI:
                 resource_tree.insert("", "end", values=(node, f"{allocated}/{instances}", status))
 
         resource_tree.pack(fill=tk.BOTH, expand=True)
+
+    def explain_deadlock_reason(self, cycle):
+        explanation = "🔍 Deadlock Explanation:\n\n"
+        suggestion = "🛠 Suggested Action:\n\n"
+
+        for i in range(len(cycle)):
+            u, v, _ = cycle[i]
+            u_type = self.graph.graph.nodes[u]['type']
+            v_type = self.graph.graph.nodes[v]['type']
+
+            if u_type == "process" and v_type == "resource":
+                explanation += f"• {u} is waiting for {v}\n"
+            elif u_type == "resource" and v_type == "process":
+                explanation += f"• {u} is held by {v}\n"
+
+        # Suggest releasing or reallocating resources
+        suggestion += "Consider releasing one of the following resource allocations:\n"
+        for i in range(len(cycle)):
+            u, v, _ = cycle[i]
+            if self.graph.graph.nodes[u]['type'] == "resource" and self.graph.graph.nodes[v]['type'] == "process":
+                suggestion += f"→ Release {u} from {v}\n"
+
+        messagebox.showerror("Deadlock Details", explanation + "\n" + suggestion)
+
 
 if __name__ == "__main__":
     root = tk.Tk()
