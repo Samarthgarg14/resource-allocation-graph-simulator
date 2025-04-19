@@ -97,7 +97,7 @@ class ResourceGraphGUI:
         tk.Button(root, text="Release Resource", command=self.release_resource).grid(row=5, column=0)
         tk.Button(root, text="Detect Deadlock", command=self.detect_deadlock).grid(row=5, column=1)
         tk.Button(root, text="Show Graph", command=self.show_graph).grid(row=6, column=0)
-        tk.Button(root, text="Show Summary Table", command=self.show_summary_table).grid(row=6, column=1)
+        tk.Button(root, text="Show Process Table", command=self.show_summary_table).grid(row=6, column=1)
 
         self.check_deadlock_periodically()  # Start automatic deadlock detection
 
