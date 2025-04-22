@@ -34,7 +34,7 @@ python app.py
 - **Release Resource**: Releases a resource from a process.
 - **Detect Deadlock**: Checks if the system has a deadlock.
 - **Show Graph**: Displays the resource allocation graph.
-- **Show Summary Table**: Displays process and resource allocation details.
+- **Show Process Table**: Displays process and resource allocation details.
 
 ## Deadlock Detection
 The program detects **deadlocks automatically** every 5 seconds and alerts the user if a cycle is found in the allocation graph.
