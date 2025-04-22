@@ -90,6 +90,9 @@ class ResourceGraphGUI:
         self.instance_entry = tk.Entry(root)
         self.instance_entry.grid(row=2, column=1)
 
+        self.log_text = tk.Text(root, height=10, width=50, wrap=tk.WORD, state=tk.DISABLED)
+        self.log_text.grid(row=8, column=0, columnspan=2, pady=10)
+
         tk.Button(root, text="Add Process", command=self.add_process).grid(row=3, column=0)
         tk.Button(root, text="Add Resource", command=self.add_resource).grid(row=3, column=1)
         tk.Button(root, text="Request Resource", command=self.request_resource).grid(row=4, column=0)
@@ -106,6 +109,7 @@ class ResourceGraphGUI:
         process = self.process_entry.get().strip()
         if process and self.graph.add_process(process):
             messagebox.showinfo("Success", f"Process {process} added.")
+            self.update_log(f"Process '{process}' added.")
         else:
             messagebox.showwarning("Warning", f"Process {process} already exists!")
 
@@ -124,6 +128,7 @@ class ResourceGraphGUI:
 
         if resource and self.graph.add_resource(resource, instances):
             messagebox.showinfo("Success", f"Resource {resource} with {instances} instance(s) added.")
+            self.update_log(f"Resource '{resource}' with {instances} instances added.")
         else:
             messagebox.showwarning("Warning", f"Resource {resource} already exists!")
 
@@ -134,6 +139,7 @@ class ResourceGraphGUI:
         if process and resource:
             self.graph.request_resource(process, resource)
             messagebox.showinfo("Success", f"Process {process} requested Resource {resource}.")
+            self.update_log(f"Process '{process}' requested Resource '{resource}'.")
 
     def allocate_resource(self):
         process = self.process_entry.get().strip()
@@ -141,6 +147,7 @@ class ResourceGraphGUI:
         if process and resource:
             if self.graph.allocate_resource(process, resource):
                 messagebox.showinfo("Success", f"Resource {resource} allocated to Process {process}.")
+                self.update_log(f"Resource '{resource}' allocated to Process '{process}'.")
             else:
                 messagebox.showerror("Error", f"Resource {resource} is fully allocated!")
 
@@ -150,6 +157,7 @@ class ResourceGraphGUI:
         if process and resource:
             self.graph.release_resource(process, resource)
             messagebox.showinfo("Success", f"Resource {resource} released from Process {process}.")
+            self.update_log(f"Resource '{resource}' released from Process '{process}'.")
 
     def show_graph(self):
         if len(self.graph.graph.nodes) == 0:
@@ -173,6 +181,7 @@ class ResourceGraphGUI:
         deadlock = self.graph.detect_deadlock()
         if deadlock:
             messagebox.showerror("Deadlock Detected!", f"Deadlock found: {deadlock}")
+            self.update_log(f"Deadlock detected for processes: {', '.join(deadlock)}.")
             self.explain_deadlock_reason(deadlock)  # Call the new feature here
         else:
             messagebox.showinfo("No Deadlock", "No deadlock detected.")
@@ -181,7 +190,7 @@ class ResourceGraphGUI:
         """Opens a new window to display the resource allocation summary table."""
         summary_window = tk.Toplevel(self.root)
         summary_window.title("Resource Allocation Summary")
-        summary_window.geometry("600x500")
+        summary_window.geometry("800x500")
 
         tree = ttk.Treeview(summary_window, columns=("Process", "Allocated Resources", "Requested Resources", "Status"), show="headings")
         tree.heading("Process", text="Process")
@@ -257,7 +266,11 @@ class ResourceGraphGUI:
             self.deadlock_reported = False
             messagebox.showinfo("Reset Done", "The simulator has been reset.")
 
-
+    def update_log(self, log_message):
+        """Update the log window with the new log message."""
+        self.log_text.config(state=tk.NORMAL)  # Enable editing of the Text widget
+        self.log_text.insert(tk.END, log_message + "\n")  # Insert the new log message
+        self.log_text.config(state=tk.DISABLED)
 if __name__ == "__main__":
     root = tk.Tk()
     app = ResourceGraphGUI(root)
