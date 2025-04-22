@@ -98,6 +98,7 @@ class ResourceGraphGUI:
         tk.Button(root, text="Detect Deadlock", command=self.detect_deadlock).grid(row=5, column=1)
         tk.Button(root, text="Show Graph", command=self.show_graph).grid(row=6, column=0)
         tk.Button(root, text="Show Process Table", command=self.show_summary_table).grid(row=6, column=1)
+        tk.Button(root, text="Reset", command=self.reset_graph).grid(row=7, column=0, columnspan=2, pady=5)
 
         self.check_deadlock_periodically()  # Start automatic deadlock detection
 
@@ -245,6 +246,16 @@ class ResourceGraphGUI:
                 suggestion += f"→ Release {u} from {v}\n"
 
         messagebox.showerror("Deadlock Details", explanation + "\n" + suggestion)
+        
+    def reset_graph(self):
+        confirm = messagebox.askyesno("Reset Confirmation", "Are you sure you want to reset everything?")
+        if confirm:
+            self.graph = ResourceAllocationGraph()
+            self.process_entry.delete(0, tk.END)
+            self.resource_entry.delete(0, tk.END)
+            self.instance_entry.delete(0, tk.END)
+            self.deadlock_reported = False
+            messagebox.showinfo("Reset Done", "The simulator has been reset.")
 
 
 if __name__ == "__main__":
